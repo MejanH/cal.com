@@ -1,5 +1,5 @@
 # Cal.com Development Makefile
-# Most frequently used commands: setup, dev-frontend, dev-backend
+# Most frequently used commands: setup, start-web, start-api-v2
 
 # =============================================================================
 # FREQUENTLY USED COMMANDS
@@ -14,41 +14,53 @@ setup:
 	@echo "✅ Emails setup complete"
 	yarn workspace @calcom/api-v2 exec docker compose up -d
 	@echo "✅ API v2 docker services started"
-	@echo "🎉 Setup complete! Now run 'make dev-frontend' and 'make dev-backend' in separate terminals"
+	@echo "🎉 Setup complete! Now run 'make start-web' and 'make start-api-v2' in separate terminals"
 
-# Frontend development server
-dev-frontend:
-	@echo "🌐 Starting frontend development server..."
+# Web start server
+start-web:
+	@echo "🌐 Starting web server..."
 	yarn workspace @calcom/web start
 
-# Backend development server  
-dev-backend:
-	@echo "⚙️  Starting backend development server..."
+# API v2 start server  
+start-api-v2:
+	@echo "⚙️  Starting API v2 server..."
 	yarn workspace @calcom/api-v2 start
+
+# Web development mode
+dev-web:
+	@echo "🌐 Starting web in development mode..."
+	yarn dx
+
+# API v2 development mode
+dev-api-v2:
+	@echo "⚙️  Starting API v2 in development mode..."
+	yarn workspace @calcom/api-v2 dev
 
 # =============================================================================
 # BUILD COMMANDS (used less frequently)
 # =============================================================================
 
-# Build all frontend components
-build-frontend:
-	@echo "🔨 Building frontend components..."
-	yarn workspace @calcom/trpc run build
-	@echo "✅ TRPC build complete"
-	yarn workspace @calcom/embed-core run build
-	@echo "✅ Embed-core build complete"
-	yarn workspace @calcom/web run build
-	@echo "✅ Web build complete"
-	@echo "🎉 Frontend build complete!"
+# Clean and install dependencies
+clean-install:
+	@echo "🧹 Cleaning and installing dependencies..."
+	-yarn clean
+	yarn install
+	@echo "✅ Clean and install complete!"
 
-# Build backend
-build-backend:
-	@echo "🔨 Building backend..."
+# Build web packages
+build-web:
+	@echo "🔨 Building web packages..."
+	NODE_OPTIONS=--max-old-space-size=8192 yarn build
+	@echo "✅ Web packages build complete!"
+
+# Build API v2
+build-api-v2:
+	@echo "🔨 Building API v2..."
 	yarn workspace @calcom/api-v2 build
-	@echo "✅ Backend build complete!"
+	@echo "✅ API v2 build complete!"
 
 # Build everything
-build-all: build-frontend build-backend
+build-all: build-web build-api-v2
 	@echo "🎉 All builds complete!"
 
 # =============================================================================
@@ -99,14 +111,17 @@ help:
 	@echo "📋 Available commands:"
 	@echo ""
 	@echo "🚀 FREQUENT COMMANDS:"
-	@echo "  make setup        - Setup docker services (run first)"
-	@echo "  make dev-frontend - Start frontend dev server (separate terminal)"
-	@echo "  make dev-backend  - Start backend dev server (separate terminal)"
+	@echo "  make setup      - Setup docker services (run first)"
+	@echo "  make start-web  - Start web server (separate terminal)"
+	@echo "  make start-api-v2 - Start API v2 server (separate terminal)"
+	@echo "  make dev-web    - Start web in development mode (separate terminal)"
+	@echo "  make dev-api-v2 - Start API v2 in development mode (separate terminal)"
 	@echo ""
 	@echo "🔨 BUILD COMMANDS:"
-	@echo "  make build-frontend - Build all frontend components"
-	@echo "  make build-backend  - Build backend"
-	@echo "  make build-all      - Build everything"
+	@echo "  make clean-install - Clean and install dependencies"
+	@echo "  make build-web     - Build web packages"
+	@echo "  make build-api-v2  - Build API v2"
+	@echo "  make build-all     - Build everything"
 	@echo ""
 	@echo "🛠️  UTILITY COMMANDS:"
 	@echo "  make restart-docker - Restart all docker services"
@@ -120,4 +135,4 @@ help:
 .DEFAULT_GOAL := help
 
 # Declare phony targets
-.PHONY: setup dev-frontend dev-backend build-frontend build-backend build-all restart-docker clean-docker clean-prisma clean-emails clean-api help
+.PHONY: setup start-web start-api-v2 dev-web dev-api-v2 clean-install build-web build-api-v2 build-all restart-docker clean-docker clean-prisma clean-emails clean-api help
